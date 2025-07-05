@@ -1,0 +1,16 @@
+# Dépendances principales
+Flask==2.3.3
+python-dateutil==2.8.2
+
+# Dépendances optionnelles pour les extensions
+# redis==4.6.0              # Pour le cache Redis
+# Flask-Login==0.6.3        # Pour l'authentification
+# Flask-WTF==1.1.1          # Pour les formulaires sécurisés
+# gunicorn==21.2.0          # Pour le déploiement production
+# prometheus-client==0.17.1 # Pour le monitoring
+
+# Dépendances de développement
+# pytest==7.4.0            # Pour les tests
+# flake8==6.0.0            # Pour le linting
+# black==23.7.0            # Pour le formatage de code
+# bandit==1.7.5            # Pour l'analyse de sécurité
