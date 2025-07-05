@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des règles Suricata</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f0f2f5;
+        }
+        h1 {
+            color: #0275d8;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            resize: vertical;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background-color: #5cb85c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .btn:hover {
+            background-color: #449d44;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        a.btn-secondary {
+            background-color: #0275d8;
+        }
+        a.btn-secondary:hover {
+            background-color: #025aa5;
+        }
+    </style>
+</head>
+<body>
+    <h1>⚙️ Gérer les règles Suricata</h1>
+    <a href="/" class="btn btn-secondary">⬅️ Retour aux logs</a>
+
+    <h3>📝 Règles ajoutées via l'interface</h3>
+<textarea readonly>{{ rules }}</textarea>
+
+<h3>📄 Règles existantes (local.rules)</h3>
+<textarea readonly>{{ local_rules }}</textarea>
+
+    <div class="section">
+        <h3>➕ Ajouter une règle simple</h3>
+        <form method="post">
+            <label>Type de protocole :</label>
+            <select name="protocol">
+                <option value="tcp">TCP</option>
+                <option value="udp">UDP</option>
+                <option value="icmp">ICMP</option>
+            </select>
+
+            <label>Port destination (optionnel) :</label>
+            <input type="text" name="port" placeholder="Ex: 80">
+
+            <label>Message d'alerte :</label>
+            <input type="text" name="message" placeholder="Ex: Détection accès HTTP suspect">
+
+            <button type="submit" class="btn">Ajouter la règle</button>
+        </form>
+    </div>
+</body>
+</html>

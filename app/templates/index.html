@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Suricata Alerts par Catégorie</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background: #f0f2f5; }
+        h1 { color: #ff5c5c; }
+        .btn-top { display: inline-block; padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 5px 5px 15px 0; }
+        .btn-top:hover { background: #0056b3; }
+        .category { margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
+        .category button { width: 100%; padding: 12px; text-align: left; background: #343a40; color: #fff; border: none; font-size: 16px; cursor: pointer; }
+        .category button:hover { background: #23272b; }
+        .logs { display: none; background: white; padding: 10px 15px; }
+        .alert-item { margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-left: 4px solid #007bff; border-radius: 4px; }
+        .meta { font-size: 0.9em; color: #555; }
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); text-align: center; padding-top: 200px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>🚨 Suricata Alerts par Catégorie</h1>
+    <a href="/rules" class="btn-top">⚙️ Gérer les règles</a>
+
+    <label for="datepicker">📅 Choisir une date :</label>
+    <input id="datepicker" type="text" placeholder="Sélectionnez une date..." readonly style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc;">
+
+    {% for signature, logs in logs %}
+        <div class="category">
+            <button onclick="toggleLogs('{{ loop.index0 }}')">{{ signature }} ({{ logs|length }} logs affichés)</button>
+            <div id="logs-{{ loop.index0 }}" class="logs">
+                {% for log in logs %}
+                    <div class="alert-item">
+                        <strong>Source:</strong> {{ log.src_ip or "N/A" }} → <strong>Dest:</strong> {{ log.dest_ip or "N/A" }}<br>
+                        <div class="meta">🗓️ {{ log.formatted_time or "N/A" }} — {{ log.relative_time or "N/A" }}</div>
+                    </div>
+                {% endfor %}
+                <button onclick="loadAll('{{ signature }}', '{{ loop.index0 }}')" class="btn-top">Voir tous les logs</button>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div id="loader">Chargement...</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        function toggleLogs(index) {
+            var el = document.getElementById('logs-' + index);
+            el.style.display = (el.style.display === "block") ? "none" : "block";
+        }
+
+        function loadAll(signature, index) {
+            document.getElementById("loader").style.display = "block";
+            fetch(`/load_all?signature=${encodeURIComponent(signature)}&date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    var el = document.getElementById('logs-' + index);
+                    var html = "";
+                    data.forEach(log => {
+                        html += `<div class="alert-item"><strong>Source:</strong> ${log.src_ip || "N/A"} → <strong>Dest:</strong> ${log.dest_ip || "N/A"}<br>
+                                 <div class="meta">🗓️ ${log.formatted_time || "N/A"} — ${log.relative_time || "N/A"}</div></div>`;
+                    });
+                    el.innerHTML = html;
+                    document.getElementById("loader").style.display = "none";
+                })
+                .catch(err => {
+                    alert("Erreur lors du chargement !");
+                    document.getElementById("loader").style.display = "none";
+                });
+        }
+
+        let selectedDate = "";
+
+        flatpickr("#datepicker", {
+            enable: {{ dates|tojson }},
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    window.location.href = `/?date=${dateStr}`;
+                }
+            },
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: { shorthand: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'], longhand: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] },
+                months: { shorthand: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'], longhand: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] },
+            }
+        });
+    </script>
+</body>
+</html>
